@@ -4,7 +4,8 @@
 
 ## Setup
 
-Do Step 1 of the [Sheets API Quickstart](https://developers.google.com/sheets/api/quickstart/nodejs). Download the `credentials.json` into this repository's `/process` directory.
+1. Do Step 1 of the [Sheets API Quickstart](https://developers.google.com/sheets/api/quickstart/nodejs). Download the `credentials.json` into this repository's `/process` directory.
+2. Run `npm install`.
 
 ## Usage
 
