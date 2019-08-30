@@ -46,7 +46,6 @@ q_stats %>%
   coord_flip() +
   facet_grid(~ question) +
   scale_x_discrete(limits = c("Neutral", "Strongly disagree", "Disagree", "Agree", "Strongly agree")) +
-  scale_fill_manual(values = c("#f8b5a6", "#a87b89", "#c0cccc", "#f8b5a6", "#a87b89")) +
   theme(
     panel.grid = element_blank(),
     panel.background = element_blank(),
@@ -60,7 +59,7 @@ q_stats %>%
 ```
 
 ```{r}
-ggsave('export.pdf')
+# ggsave('export.pdf')
 ```
 
 ## Affirmative action
@@ -71,7 +70,7 @@ responses_race %>%
   group_by(income, category) %>% 
   # filter(n() > 5) %>% 
   ungroup() %>% 
-  ggplot(aes(income, fill = affirmative_action)) +
+  ggplot(aes(income, fill = q_affirmative_action)) +
   geom_bar(position = "fill") +
   coord_flip()
   facet_grid(category ~ .)
@@ -81,7 +80,7 @@ responses_race %>%
 
 ```{r}
 responses %>% 
-  ggplot(aes(free_speech)) +
+  ggplot(aes(q_free_speech)) +
   geom_bar() +
   coord_flip()
 ```
@@ -90,7 +89,7 @@ responses %>%
 
 ```{r}
 responses %>% 
-  ggplot(aes(eliminate_loans, ..count.. / sum(..count..))) +
+  ggplot(aes(q_eliminate_loans, ..count.. / sum(..count..))) +
   geom_bar() +
   coord_flip()
 ```
@@ -99,16 +98,16 @@ responses %>%
 
 ```{r}
 responses %>% 
-  ggplot(aes(fossil_fuels_divest)) +
+  ggplot(aes(q_fossil_fuels_divest)) +
   geom_bar() +
   coord_flip()
-me```
+```
 
 ## Manhattanville
 
 ```{r}
 responses %>% 
-  ggplot(aes(manhattanville)) +
+  ggplot(aes(q_manhattanville)) +
   geom_bar()
 ```
 

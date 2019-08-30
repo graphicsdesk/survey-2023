@@ -7,21 +7,18 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(jsonlite)
+library(scales)
 
-zip_fips <- read.csv("ZIP-COUNTY-FIPS.csv")
-
-LIKERT_ORDERED <- c("Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree")
 responses <- fromJSON("../data/form_responses.json") %>% 
-  separate(categories, sep = "; ", into = c("category1", "category2", "category3")) %>% 
-  gather(category_num, category, category1:category3) %>% 
-  filter(!is.na(category)) %>%
   mutate(
-    eliminate_loans = factor(eliminate_loans, levels = LIKERT_ORDERED),
     income = factor(income, levels = c("Less than $40K", "$40K to $80K", "$80K to $125K", "$125K to $250K", "$250K to $350K", "$350K to $500K", "Greater than $500K")),
     net_price = factor(net_price, levels= c("0", "Less than $5K", "$10K to $15K", "$15K to $20K", "$20K to $25K", "$25K to $30K", "$30K to $35K", "$35K to $40K", "$45K to $50K", "$50K to $55K", "$55K to $60K", "$60K to $65K", "$65K to $70K", "$70K to $75K", "More than $75K")),
-    affirmative_action = factor(affirmative_action, levels = LIKERT_ORDERED),
-    political_af = factor(political_af, levels = c("Very conservative", "Somewhat conservative", "Somewhat liberal", "Very liberal", "I don't know", "Neither conservative nor liberal"))
-  )
+)
+
+responses_race <- responses %>% 
+  separate(categories, sep = "; ", into = c("category1", "category2", "category3")) %>% 
+  gather(category_num, category, category1:category3) %>% 
+  filter(!is.na(category))
 
 responses_ec <- responses %>% 
   separate(extracurriculars, sep = ", ", into = c("ec1", "ec2", "ec3", "ec4", "ec5", "ec6", "ec7", "ec8")) %>% 
@@ -30,14 +27,22 @@ responses_ec <- responses %>%
   group_by(extracurricular) %>% 
   filter(n() > 10) %>% 
   ungroup()
+responses_race_ec <- responses_ec %>% 
+  separate(categories, sep = "; ", into = c("category1", "category2", "category3")) %>% 
+  gather(category_num, category, category1:category3) %>% 
+  filter(!is.na(category))
+
+responses_q <- responses %>%
+  select(starts_with("q_")) %>% 
+  filter(q_fossil_fuels_divest != "")
 ```
 
 ## Income and race
 
-Income bracket by race
+Income distribution by race
 ```{r}
-responses %>%
-  ggplot(aes(income, fill = category)) +
+responses_race %>%
+  ggplot(aes(category, fill = income)) +
   geom_bar(position = "fill") +
   coord_flip()
 ```
@@ -62,16 +67,25 @@ responses_ec %>%
 ```
 
 Asian
-- Richer = sports, visual and performing arts, 
+- Richer = more sports, ~more visual and performing arts, ~less student government, ~less political organizations, ~more campus pubs
+- No matter what income, same for: culture/identity groups,
 
-Hispanic/Latino: Culture/identity interest goes down with in higher income brackets. 
+Black
+- Richer = more sports
+- No matter what income, same for: culture/identity groups
+
+Hispanic/Latino:
+- Richer = ~more campus publications, culture/identity interest goes down, more visual/performing arts
+
+White:
+- No matter what come, same for: Campus pubs, sports, political orgs, social justice, less student gov't, visuall/performing arts
 
 ```{r}
-responses_ec %>%
+responses_race_ec %>%
   filter(!category %in% c("Native Hawaiian or Other Pacific Islander")) %>% 
-  mutate(
-    extracurricular = if_else(extracurricular %in% c("Culture or Identity Groups", "Political Organizations", "Social Justice/Activism"), extracurricular, "Other")
-  ) %>% 
+  # mutate(
+    # extracurricular = if_else(extracurricular %in% c("Culture or Identity Groups", "Political Organizations", "Social Justice/Activism"), extracurricular, "Other")
+  # ) %>% 
   ggplot(aes(income, fill = extracurricular)) +
   geom_bar(position = "fill") +
   coord_flip() +
@@ -84,7 +98,7 @@ Asians and Whites are spread out pretty evenly in all income brackets, but Black
 
 **More poor students are first generation.**
 ```{r}
-responses %>% 
+responses_race %>% 
   filter(!category %in% c("Native Hawaiian or Other Pacific Islander")) %>% 
   mutate(
     category = factor(category, levels = c("White", "Asian", "Hispanic, Latino, or Spanish origin", "Black or African American", "American Indian or Alaskan Native", "Middle Eastern or North African"))
