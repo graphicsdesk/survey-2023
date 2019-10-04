@@ -47,6 +47,8 @@ responses_race %>%
   coord_flip()
 ```
 
+
+
 ## Extracurriculars
 
 Conservatives slightly more likely to join political organizations and student government, liberals much more likely to join social justice/activism and culture or identity groups.
